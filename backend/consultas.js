@@ -4,7 +4,7 @@ const axios = require('axios');
 const pool = new Pool({
   host: 'localhost',
   user: 'postgres',
-  password: 'trufa****',
+  password: 'trufa1507',
   database: 'likeme',
   allowExitOnIdle: true
 });
@@ -48,4 +48,18 @@ const obtenerPosts = async () => {
 
 obtenerPosts();
 
-module.exports = { agregarPost, obtenerPosts };
+const modificarPosts = async (likes, id) => {
+  const consulta = "UPDATE posts SET likes = $1 WHERE id = $2"
+  const values = [likes, id]
+  const result = await pool.query(consulta, values)
+  console.log("Like agregado")
+  }
+  
+const eliminarPosts = async (id) => {
+  const consulta = "DELETE FROM posts WHERE id = $1"
+  const values = [id]
+  const result = await pool.query(consulta, values)
+    }
+    
+
+module.exports = { agregarPost, obtenerPosts, modificarPosts, eliminarPosts };

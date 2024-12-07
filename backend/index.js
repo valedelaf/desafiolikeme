@@ -1,21 +1,28 @@
-const { agregarPost, obtenerPosts } = require('./consultas')
 const express = require('express')
 const app = express()
-const fs = require('fs')
 const cors = require('cors')
+const { agregarPost, obtenerPosts, modificarPosts, eliminarPosts } = require('./controllers/postsController')
 
-app.listen(3001, console.log("¡Servidor encendido!"))
 app.use(cors())
 app.use(express.json())
 
+app.listen(3001, () => {
+    console.log("Server is running on port 3001 :)");
+});
+
 app.get("/posts", async (req, res) => {
-const posts = await obtenerPosts()
-res.json(posts)
-})
+await obtenerPosts(req, res)
+});
 
 app.post("/posts", async (req, res) => {
-    const { titulo, img, descripcion, likes } = req.body
-    await agregarPost(titulo, img, descripcion, likes)
-    res.send("Post agregado con éxito")
-    })
+await agregarPost(req,res)
+})
+
+app.put("/posts/:id", async (req, res) => {
+await modificarPosts(req, res)
+});
+
+app.delete("/posts/:id", async (req, res) => {
+await eliminarPosts(req, res)
+})
 
