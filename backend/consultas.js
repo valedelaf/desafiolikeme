@@ -9,12 +9,6 @@ const pool = new Pool({
   allowExitOnIdle: true
 });
 
-const getDB = async () => {
-  const result = await pool.query("SELECT NOW()");
-  console.log(result.rows, "Conexión exitosa");
-}
-getDB();
-
 
 const acortarUrl = async (url) => {
   try {
@@ -32,33 +26,51 @@ const acortarUrl = async (url) => {
 
 const agregarPost = async (titulo, img, descripcion, likes) => {
 
-  const shortImg = await acortarUrl(img);
-
-  const consulta = "INSERT INTO posts values (DEFAULT, $1, $2, $3, $4)";
-  const values = [titulo, shortImg, descripcion, likes];
-  const result = await pool.query(consulta, values);
-  console.log("Post agregado");
+  try {
+    const shortImg = await acortarUrl(img);
+  
+    const consulta = "INSERT INTO posts values (DEFAULT, $1, $2, $3, $4)";
+    const values = [titulo, shortImg, descripcion, likes];
+    const result = await pool.query(consulta, values);
+    console.log("Post agregado");
+  } catch (error) {
+    if (error.code === '23502')
+      res.status(500).json({msg:'Faltan datos obligatorios'});
+  else
+      res.status(500).send(error);
+  }
 }
 
 const obtenerPosts = async () => {
-  const { rows } = await pool.query("SELECT * FROM posts");
-  console.log(rows);
-  return rows;
+  try {
+    const { rows } = await pool.query("SELECT * FROM posts");
+    console.log(rows);
+    return rows;
+  } catch (error) {
+    res.status(500).send(error);
+  }
 }
 
-obtenerPosts();
 
-const modificarPosts = async (likes, id) => {
-  const consulta = "UPDATE posts SET likes = $1 WHERE id = $2"
-  const values = [likes, id]
-  const result = await pool.query(consulta, values)
-  console.log("Like agregado")
+const modificarPosts = async (id) => {
+  try {
+    const consulta = "UPDATE posts SET likes = likes + 1 WHERE id = $1"
+    const values = [id]
+    const { rows } = await pool.query(consulta, values);
+    return rows;
+  } catch(err) {
+    res.status(500).send(error);
   }
+};
   
 const eliminarPosts = async (id) => {
-  const consulta = "DELETE FROM posts WHERE id = $1"
-  const values = [id]
-  const result = await pool.query(consulta, values)
+ try {
+   const consulta = "DELETE FROM posts WHERE id = $1"
+   const values = [id]
+   const result = await pool.query(consulta, values)
+ } catch (error) {
+  res.status(500).send(error);
+ }
     }
     
 

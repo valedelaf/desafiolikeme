@@ -11,6 +11,12 @@ function App() {
   const [descripcion, setDescripcion] = useState("");
   const [posts, setPosts] = useState([]);
 
+  const likePost = async (id) => {
+    await fetch(`${urlBaseServer}/posts/like/${id}`, {
+      method: "PUT",
+    });
+  };
+
   const getPosts = async () => {
     const { data: posts } = await axios.get(urlBaseServer + "/posts");
     setPosts([...posts]);
@@ -22,13 +28,21 @@ function App() {
     getPosts();
   };
 
-  // este método se utilizará en el siguiente desafío
-  const like = async (id) => {
-    await axios.put(urlBaseServer + `/posts/like/${id}`);
-    getPosts();
+  const like = (id) => {
+    likePost(id).then(() => {
+      const newPosts = posts.map((post) => {
+        if (post.id === id) {
+          return {
+            ...post,
+            likes: post.likes + 1,
+          };
+        }
+        return post;
+      });
+      setPosts(newPosts);
+    });
   };
 
-  // este método se utilizará en el siguiente desafío
   const eliminarPost = async (id) => {
     await axios.delete(urlBaseServer + `/posts/${id}`);
     getPosts();
